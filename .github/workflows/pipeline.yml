@@ -1,14 +1,11 @@
 name: Apache CI/CD
-
 on:
   push:
     branches:
       - main
-
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -20,7 +17,27 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Image
-        run: docker build -t valochoa09/apache-app:v1 .
+        run: docker build -t valochoa09/apache-app:latest .
 
       - name: Push Image
-        run: docker push valochoa09/apache-app:v1
+        run: docker push valochoa09/apache-app:latest
+
+      - name: Deploy en k3s
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sudo kubectl set image deployment/apache-deployment apache=valochoa09/apache-app:latest
+            sudo kubectl rollout status deployment/apache-deployment
+
+      - name: Verificar servicio
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            curl -f http://100.58.179.241:30100
+            echo "Servicio Apache respondiendo correctamente"
