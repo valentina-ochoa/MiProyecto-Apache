@@ -23,11 +23,21 @@ jobs:
         run: docker push valochoa09/apache-app:latest
 
       - name: Deploy en k3s
-        run: |
-          echo "Imagen publicada: valochoa09/apache-app:latest"
-          echo "Despliegue aplicado con: kubectl set image deployment/apache-deployment apache=valochoa09/apache-app:latest"
-          echo "El cluster k3s en AWS actualiza automaticamente con imagePullPolicy Always"
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sudo kubectl set image deployment/apache-deployment apache=valochoa09/apache-app:latest
+            sudo kubectl rollout status deployment/apache-deployment
 
       - name: Verificar servicio
-        run: |
-          curl -f http://100.58.179.241:30100 && echo "Servicio Apache OK" || echo "Verificar manualmente"
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            curl -f http://100.58.179.241:30100
+            echo "Servicio Apache OK"
