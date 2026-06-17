@@ -39,5 +39,5 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           script: |
-            curl -f http://100.58.179.241:30100
+            curl -f http://44.201.132.156:30100
             echo "Servicio Apache OK"
