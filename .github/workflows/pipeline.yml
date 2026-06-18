@@ -1,8 +1,10 @@
 name: Apache CI/CD
+
 on:
   push:
     branches:
       - main
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -27,8 +29,10 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ubuntu
-          key: ${{ secrets.SSH_KEY }}
+          key: ${{ secrets.EA2_SSH_PRIVATE_KEY }}
           script: |
+            sudo kubectl apply -f /home/ubuntu/k8s/deployment.yaml
+            sudo kubectl apply -f /home/ubuntu/k8s/service.yaml
             sudo kubectl set image deployment/apache-deployment apache=valochoa09/apache-app:latest
             sudo kubectl rollout status deployment/apache-deployment
 
@@ -37,7 +41,7 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ubuntu
-          key: ${{ secrets.SSH_KEY }}
+          key: ${{ secrets.EA2_SSH_PRIVATE_KEY }}
           script: |
-            curl -f http://44.201.132.156:30100
+            curl -f http://localhost:30100
             echo "Servicio Apache OK"
