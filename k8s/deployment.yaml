@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: apache
-        image: valochoa09/apache-app:v1
+        image: valochoa09/apache-app:latest
         imagePullPolicy: Always
 
         ports:
